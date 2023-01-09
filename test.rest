@@ -1,0 +1,29 @@
+# DELETE http://localhost:4200/tags/6
+# Content-Type:application/json
+
+GET http://localhost:4200/tags
+Content-Type:application/json
+
+# GET http://localhost:4200/tags/6
+# Content-Type:application/json
+
+###新增代辦事項
+# POST http://localhost:4200/tags
+# Content-Type:application/json
+
+# {
+#     "id":6,
+#     "name":"dining table",
+#     "showOnPage":false,
+#     "taggedNumber":12
+# }
+
+# PATCH http://localhost:4200/tags/6
+# Content-Type:application/json
+
+# {
+#     "id":6,
+#     "name":"dining chair",
+#     "showOnPage":true,
+#     "taggedNumber":16
+# }
