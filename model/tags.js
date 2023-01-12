@@ -1,12 +1,20 @@
+const { ObjectId } = require('mongodb')
 const mongoose = require('mongoose')
 
+function validatorGTZ(value) {
+    return value >= 0
+}
+const many = [
+    { validator: validatorGTZ, msg: 'TaggedNumber at least should be zero!' },
+    { validator: Number.isInteger, msg: 'TaggedNumber is not an integer!' }
+]
 const tagsSchema = mongoose.Schema({
     id: {
         type: Number,
         required: true,
         trim: true,
         unique: true,
-        
+
     },
     name: {
         type: String,
@@ -16,19 +24,15 @@ const tagsSchema = mongoose.Schema({
     },
     showOnPage: {
         type: Boolean,
-        default:false,
+        default: false,
         trim: true,
     },
     taggedNumber: {
         type: Number,
         required: true,
         trim: true,
-        validate(value) {
-            if (value < 0) {
-                throw new Error('TaggedNumber at least should be zero!')
-
-            }
-        }
+        default: 0,
+        validate: many,
     },
 },
     {
