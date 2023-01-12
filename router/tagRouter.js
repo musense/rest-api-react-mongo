@@ -23,32 +23,50 @@ async function getTag(req, res, next) {
 router.get('/tags', async (req, res) => {
     try {
         // const tag = (await new Tag(req.body)).toJSON()
-        const tag = await Tag.find().limit(10).sort({ id: 1 })
+        const tagList = await Tag.find()
+            // .limit(10)
+            .sort({ id: 1 })
         // console.log(`router get tag: ${JSON.stringify(res.json(tag))}`)
-        res.json(tag)
-        // const await tag.toJSON()
-    } catch (e) {
-        res.status(500).send({ message: e.message })
-    }
-})
-
-router.post('/tags', async (req, res) => {
-    const tag = new Tag({
-        id: req.body.id,
-        name: req.body.name,
-        showOnPage: req.body.showOnPage,
-        taggedNumber: req.body.taggedNumber,
-    })
-    try {
-        const saveTag = await tag.save()
-        res.status(201).json(saveTag)
+        let uTagLst = [];
+        let trimConst = ['updatedAt', 'createdAt', '__v']
+        tagList.map((doc) => {
+            // set default value id db data not set
+            let uTag = {
+                id: '0',
+                name: '',
+                showOnPage: 'false',
+                taggedNumber: '0',
+            };
+            Object.entries(doc).map(([docKey, tag]) => {
+                if (docKey !== '_doc') return
+                Object.entries(tag).map(([key, value]) => {
+                    if (trimConst.includes(key)) return
+                    uTag[key] = "" + value
+                })
+            });
+            // console.log(`uTag: ${JSON.stringify(uTag)}`);
+            uTagLst.push(uTag)
+        });
+        res.send(uTagLst)
     } catch (e) {
         res.status(500).send({ message: e.message })
     }
 })
 
 router.get('/tags/:id', getTag, async (req, res) => {
+
     res.send(res.tag)
+})
+
+router.post('/tags', async (req, res) => {
+    const { id, name, showOnPage, taggedNumber } = req.body
+    const tag = new Tag({ id, name, showOnPage, taggedNumber, })
+    try {
+        const saveTag = await tag.save()
+        res.status(201).json(saveTag)
+    } catch (e) {
+        res.status(500).send({ message: e.message })
+    }
 })
 
 router.delete('/tags/:id', getTag, async (req, res) => {
@@ -61,10 +79,10 @@ router.delete('/tags/:id', getTag, async (req, res) => {
 })
 
 router.patch('/tags/:id', getTag, async (req, res) => {
-    // if (req.body.id != null) res.tag.id = req.body.id
-    if (req.body.name != null) res.tag.name = req.body.name
-    if (req.body.showOnPage != null) res.tag.showOnPage = req.body.showOnPage
-    if (req.body.taggedNumber != null) res.tag.taggedNumber = req.body.taggedNumber
+    const { name, showOnPage, taggedNumber } = req.body
+    if (name != null) res.tag.name = name
+    if (showOnPage != null) res.tag.showOnPage = showOnPage
+    if (taggedNumber != null) res.tag.taggedNumber = taggedNumber
     try {
         const updateTag = await res.tag.save()
         res.json(updateTag)
@@ -74,3 +92,5 @@ router.patch('/tags/:id', getTag, async (req, res) => {
 })
 
 module.exports = router
+
+
