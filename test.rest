@@ -1,29 +1,30 @@
-# DELETE http://localhost:4200/tags/6
-# Content-Type:application/json
-
-GET http://localhost:4200/tags
+DELETE http://localhost:4200/tags/9
 Content-Type:application/json
 
-# GET http://localhost:4200/tags/6
+# GET http://localhost:4200/tags
 # Content-Type:application/json
 
-###新增代辦事項
+# GET http://localhost:4200/tags/5
+# Content-Type:application/json
+
+# ###新增代辦事項
 # POST http://localhost:4200/tags
 # Content-Type:application/json
 
 # {
-#     "id":6,
-#     "name":"dining table",
-#     "showOnPage":false,
-#     "taggedNumber":12
+#     "id":"11",
+#     "name":"macbook",
+#     "showOnPage":true,
+#     "taggedNumber":66
 # }
 
-# PATCH http://localhost:4200/tags/6
+# PATCH http://localhost:4200/tags/11
 # Content-Type:application/json
 
 # {
-#     "id":6,
-#     "name":"dining chair",
-#     "showOnPage":true,
-#     "taggedNumber":16
+#     "id":11,
+#     "name":"macbook pro M3.5",
+#     "showOnPage":false,
+#     "taggedNumber":666
 # }
+
