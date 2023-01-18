@@ -1,30 +1,20 @@
-DELETE http://localhost:4200/tags/9
-Content-Type:application/json
 
-# GET http://localhost:4200/tags
-# Content-Type:application/json
-
-# GET http://localhost:4200/tags/5
-# Content-Type:application/json
-
-# ###新增代辦事項
-# POST http://localhost:4200/tags
+# POST http: //localhost:4200/user/register
 # Content-Type:application/json
 
 # {
-#     "id":"11",
-#     "name":"macbook",
-#     "showOnPage":true,
-#     "taggedNumber":66
+#    "email"   : "testtest6789@test.com",
+#    "password": "123dfgRRSS123",
+#    "username": "testtest6789"
 # }
 
-# PATCH http://localhost:4200/tags/11
-# Content-Type:application/json
+###
 
-# {
-#     "id":11,
-#     "name":"macbook pro M3.5",
-#     "showOnPage":false,
-#     "taggedNumber":666
-# }
+# GET http://localhost:4200/user/test
+# Content-Type: application/json
+
+###
+
+GET http://localhost:4200/editor/page?content=iPhone%2014%E3%80%82Pro
+Content-Type: application/json
 

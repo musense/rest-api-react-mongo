@@ -1,6 +1,9 @@
 const express = require('express')
 const cors = require('cors');
 const tagRouter = require('./router/tagRouter');
+const editorRouter = require('./router/editorRouter');
+const userRouter = require('./router/userRouter');
+require('dotenv').config();
 require('./mongoose')
 
 // const http = require("http")
@@ -11,8 +14,8 @@ const http = require("http");
 
 
 const app = express()
-// const PORT = proccess.env.PORT || 3000
-const PORT = 4200
+const PORT = process.env.PORT || 4200
+// const PORT = 4200
 const server = http.createServer(app)
 // const ssl = https.createServer(app)
 
@@ -23,7 +26,9 @@ const corsOptions = {
 }
 app.use(express.json())
 app.use(cors(corsOptions))
+app.use(editorRouter)
 app.use(tagRouter)
+app.use(userRouter)
 // server.listen(4200)
 
 // io.listen(server);
