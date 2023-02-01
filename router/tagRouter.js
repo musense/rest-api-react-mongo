@@ -9,7 +9,7 @@ tagRouter.use(function (req, res, next) {
     setTimeout(() => {
         next()
         console.timeEnd('simulate get tag delay...')
-    }, 3 * 1000)
+    }, 0 * 1000)
 })
 
 async function readTagsAndSend(req, res, next) {
@@ -23,30 +23,9 @@ async function readTagsAndSend(req, res, next) {
 
 async function getAllTags(req, res, next) {
     try {
-        const uTagList = await Tag.find()
+        const tagList = await Tag.find({}).select('-updatedAt -createdAt -__v')
             .limit(10)
             .sort({ id: 1 })
-        // console.log(`router get tag: ${JSON.stringify(res.json(tag))}`)
-        let tagList = [];
-        let removeConst = ['updatedAt', 'createdAt', '__v']
-        uTagList.map((doc) => {
-            // set default value id db data not set
-            let uTag = {
-                id: '0',
-                name: '',
-                showOnPage: 'false',
-                taggedNumber: '0',
-            };
-            Object.entries(doc).map(([docKey, tag]) => {
-                if (docKey !== '_doc') return
-                Object.entries(tag).map(([key, value]) => {
-                    if (removeConst.includes(key)) return
-                    uTag[key] = "" + value
-                })
-            });
-            // console.log(`uTag: ${JSON.stringify(uTag)}`);
-            tagList.push(uTag)
-        });
         res.tagList = tagList
         next()
     } catch (e) {
@@ -60,7 +39,7 @@ async function getTag(req, res, next) {
     // console.log(`getTag req.params.id: ${+req.params.id}`)
     let tag
     try {
-        tag = await Tag.findOne({ id })
+        tag = await Tag.findOne({ id }).select('-updatedAt -createdAt -__v')
         // return res.json(tag)
         if (tag == undefined) {
             return res.status(404).json({ message: "can't find tag!" })
@@ -89,7 +68,6 @@ tagRouter.post('/tags'
         const { id, name, showOnPage, taggedNumber } = req.body
         const tag = new Tag({ id, name, showOnPage, taggedNumber, })
         try {
-            // throw new Error('add error!!!')
             const saveTag = await tag.save()
             res.status(201).json(saveTag)
         } catch (e) {
@@ -118,8 +96,6 @@ tagRouter.patch('/tags/:id'
         if (showOnPage != null) res.tag.showOnPage = showOnPage
         if (taggedNumber != null) res.tag.taggedNumber = taggedNumber
         try {
-            // const updateTag = await res.tag.save()
-            // res.json(updateTag)
             await res.tag.save()
             next()
         } catch (e) {
