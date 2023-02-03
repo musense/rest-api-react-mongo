@@ -18,31 +18,24 @@ function parseHTML(htmlData) {
     // console.log(jsonData)
     // console.log(jsonData.child)
     let title = ''
-    let foundH1 = false;
+    let foundH1 = false
     for (const node of jsonData.child) {
         // console.log(node)
-        if (!foundH1) {
-            Object.entries(node).forEach((entry) => {
-                const [key, value] = entry
-                console.log(`${key}: ${value}`)
-                if (foundH1 && key === 'child') {
-                    title =''
-                }
-                if (key === 'tag' && value === 'h1') {
-                    foundH1 = true
-                }
-            })
-        } else {
-            break
-        }
+        if (foundH1)
+            break;
 
+        if (node['tag'] === 'h1') {
+            title = node['child'][0]['text']
+        }
     }
+    console.log(`title: ${title}`)
+    return title
 }
 
 async function getEditor(req, res, next) {
     const id = req.params.id
     // console.log(`getEditor req.params.id: ${req.params.id}`)
-    // console.log(`getEditor id: ${id}`)
+    // console.log(req)
 
     let editor
     try {
@@ -96,17 +89,18 @@ editorRouter.get('/editor/:id'
 editorRouter.patch('/editor/:id'
     , getEditor
     , async (req, res) => {
-        const { data } = req.body
-        // console.log(`editorRouter req.body.data: ${req.body.data}`)
-        if (data != null) {
-            parseHTML(data)
-            // data must contain <h1> tag, enclosed as title, and others as content
-            // start parsing data from HTML to
-            // <h1>{title}</h1> and <others>..</others> as {content}
-            return
+        const {content} = req.body;
+        console.log(req.body);
+        console.log(content);
+        
+        if (content != null) {
+            let title = parseHTML(content)
+            console.log(title);
+            
+            res.editor.content = content
+            res.editor.title = title
         }
         try {
-
             const updateEditor = await res.editor.save()
             res.json(updateEditor)
         } catch (e) {
@@ -116,8 +110,8 @@ editorRouter.patch('/editor/:id'
 
 // TODO: parse HTML    
 editorRouter.post('/editor', async (req, res) => {
-    const { id, title, content } = req.body
-    const editor = new Editor({ id, title, content })
+    const { content } = req.body
+    const editor = new Editor({ content })
     try {
         // throw new Error('add error!!!')
         const saveEditor = await editor.save()
