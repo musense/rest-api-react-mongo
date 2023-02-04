@@ -15,10 +15,10 @@ const validatorAtLeastOneUpperCase = (pwd) => regexAtLeastOneUpperCase.test(pwd)
 const validatorAtLeastEightCharacters = (pwd) => regexAtLeastEightCharacters.test(pwd)
 
 const validatePasswordMany = [
-    { validator: validatorAtLeastOneDigit, msg: 'password should at least contain one digit!' },
-    { validator: validatorAtLeastOneLowerCase, msg: 'password should at least contain one lower case!' },
-    { validator: validatorAtLeastOneUpperCase, msg: 'password should at least contain one upper case!' },
-    { validator: validatorAtLeastEightCharacters, msg: 'password should at least 8 characters!' },
+    // { validator: validatorAtLeastOneDigit, msg: 'password should at least contain one digit!' },
+    // { validator: validatorAtLeastOneLowerCase, msg: 'password should at least contain one lower case!' },
+    // { validator: validatorAtLeastOneUpperCase, msg: 'password should at least contain one upper case!' },
+    // { validator: validatorAtLeastEightCharacters, msg: 'password should at least 8 characters!' },
 ]
 const userSchema = mongoose.Schema({
     email: {
@@ -26,7 +26,7 @@ const userSchema = mongoose.Schema({
         required: true,
         trim: true,
         unique: true,
-        validata: [validateEmail, 'email not valid!']
+        validate: [validateEmail, 'email not valid!']
     },
     username: {
         type: String,
@@ -38,7 +38,7 @@ const userSchema = mongoose.Schema({
         type: String,
         required: true,
         trim: true,
-        validate: validatePasswordMany
+        // validate: validatePasswordMany
     },
 },
     {
