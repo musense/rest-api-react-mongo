@@ -1,4 +1,5 @@
-const express = require('express')
+const express = require('express');
+const { json2html } = require('html2json');
 const Editor = require('../model/editor')
 const html2json = require('html2json').html2json;
 
@@ -13,9 +14,13 @@ const editorRouter = new express.Router()
 //     }, 0 * 1000)
 // })
 
-function parseHTML(htmlData) {
-    const jsonData = html2json(htmlData);
-    // console.log(jsonData)
+function parseHTML(req, res, next) {
+    const content = req.body.content;
+    if (content === null) next()
+
+    const jsonData = html2json(content);
+    const jsonDataString = JSON.stringify(jsonData)
+    console.log(JSON.stringify(jsonDataString))
     // console.log(jsonData.child)
     let title = ''
     let foundH1 = false
@@ -29,7 +34,34 @@ function parseHTML(htmlData) {
         }
     }
     console.log(`title: ${title}`)
-    return title
+
+
+    res.title = title
+    res.jsonDataString = jsonDataString
+    next()
+}
+
+function parseJSON(req, res, next) {
+    if (res.editor.constructor === Array) {
+        res.editor
+            .filter(edit => edit.content !== null)
+            .map(edit => {
+                const jsonDataObject = JSON.parse(edit.content)
+                const htmlData = json2html(jsonDataObject);
+                edit.content = htmlData
+            })
+
+    } else if (typeof res.editor === 'object') {
+        const content = res.editor.content
+        if (content === null) next()
+
+        const jsonDataObject = JSON.parse(content)
+        const htmlData = json2html(jsonDataObject);
+
+        res.editor.content = htmlData
+    }
+
+    next()
 }
 
 async function getEditor(req, res, next) {
@@ -51,55 +83,60 @@ async function getEditor(req, res, next) {
     next()
 }
 
-editorRouter.get('/editor', async (req, res) => {
+async function getAllEditor(req, res, next) {
     try {
-        const editorList = await Editor.find({})
-            .limit(10)
-        // .sort({ id: 1 })
-        // console.log(`router get editor: ${JSON.stringify(editorList)}`)
+        const editor = await Editor.find({})
 
-        res.send(editorList)
+        res.editor = editor
     } catch (e) {
         res.status(500).send({ message: e.message })
     }
-})
+    next()
+}
+
+editorRouter.get('/editor'
+    , getAllEditor
+    , parseJSON
+    , async (req, res) => {
+
+        const { editor: editorList } = res
+        try {
+            res.send(editorList)
+        } catch (e) {
+            res.status(500).send({ message: e.message })
+        }
+    })
 
 // *get only title & _id field
 editorRouter.get('/editor/title'
     , async (req, res) => {
         try {
             const editor = await Editor.find({}).select('id title')
-                .limit(10)
-                .sort({ id: 1 })
+                // .limit(10)
+                // .sort({ id: 1 })
             res.send(editor)
         } catch (e) {
             res.status(500).send({ message: e.message })
         }
     })
 
-// * ?id={}
+
 editorRouter.get('/editor/:id'
     , getEditor
+    , parseJSON
     , async (req, res, next) => {
 
         res.send(res.editor)
     })
 
-// TODO: parse HTML
 editorRouter.patch('/editor/:id'
+    , parseHTML
     , getEditor
     , async (req, res) => {
-        const {content} = req.body;
-        console.log(req.body);
-        console.log(content);
-        
-        if (content != null) {
-            let title = parseHTML(content)
-            console.log(title);
-            
-            res.editor.content = content
-            res.editor.title = title
-        }
+        const { title, jsonDataString } = res
+        res.editor.content = jsonDataString
+        res.editor.title = title
+
         try {
             const updateEditor = await res.editor.save()
             res.json(updateEditor)
@@ -108,28 +145,34 @@ editorRouter.patch('/editor/:id'
         }
     })
 
-// TODO: parse HTML    
-editorRouter.post('/editor', async (req, res) => {
-    const { content } = req.body
-    const editor = new Editor({ content })
-    try {
-        // throw new Error('add error!!!')
-        const saveEditor = await editor.save()
-        res.status(201).json(saveEditor)
-    } catch (e) {
-        res.status(500).send({ message: e.message })
-    }
-})
+editorRouter.post('/editor'
+    , parseHTML
+    , async (req, res) => {
+        const { title, jsonDataString } = res
+        const id = await Editor.find({}).select('id')
+        const editor = new Editor({
+            id,
+            title,
+            content: jsonDataString
+        })
+        try {
+            const saveEditor = await editor.save()
+            res.status(201).json(saveEditor)
+        } catch (e) {
+            res.status(500).send({ message: e.message })
+        }
+    })
 
-// not implemented
-// router.delete('/editor/:id', getEditor, async (req, res) => {
-//     try {
-//         await res.editor.remove()
-//         res.json({ message: "Delete editor successful!" })
-//     } catch (e) {
-//         res.status(500).send({ message: e.message })
-//     }
-// })
+editorRouter.delete('/editor/:id'
+    , getEditor
+    , async (req, res) => {
+        try {
+            await res.editor.remove()
+            res.json({ message: "Delete editor successful!" })
+        } catch (e) {
+            res.status(500).send({ message: e.message })
+        }
+    })
 
 
 
