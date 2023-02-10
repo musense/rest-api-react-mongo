@@ -1,37 +1,73 @@
-const express = require('express')
-const cors = require('cors');
-const tagRouter = require('./router/tagRouter');
-const editorRouter = require('./router/editorRouter');
-const userRouter = require('./router/userRouter');
-require('dotenv').config();
-require('./mongoose')
+const express = require("express");
+const cors = require("cors");
+const tagRouter = require("./router/tagRouter");
+const editorRouter = require("./router/editorRouter");
+const userRouter = require("./router/userRouter");
+require("dotenv").config();
+require("./mongoose");
+const session = require("express-session");
 
-// const http = require("http")
-const http = require("http");
 // const https = require('https')
 // const io = require('socket.io')
 
-
-
-const app = express()
-const PORT = process.env.PORT || 4200
+const app = express();
 // const PORT = 4200
-const server = http.createServer(app)
+const PORT = process.env.PORT || 4200;
+// const CorsOrgin
+const corsOrgin = process.env.CORS_STR || "http://localhost:3000";
 // const ssl = https.createServer(app)
+// const server = https.createServer(app);
 
 const corsOptions = {
-    origin: 'http://localhost:3000',
-    optionsSuccessStatus: 200 //
-    //some legacy browsers (IE11, various SmartTVs) choke on 204
-}
-app.use(express.json())
-app.use(cors(corsOptions))
-app.use(editorRouter)
-app.use(tagRouter)
-app.use(userRouter)
+  origin: corsOrgin,
+  optionsSuccessStatus: 200, //
+  //some legacy browsers (IE11, various SmartTVs) choke on 204
+};
+app.use(express.json());
+app.use(cors(corsOptions));
+
+//set session attribute
+app.use(
+  session({
+    secret: process.env.SESSIONSECRETKEY,
+    // secret: crypto.randomUUID(),
+    name: "sid", // optional
+    cookie: {
+      secure: false, //if set true only excute on https
+      // path: userRouter,
+      expires: 1800000,
+    },
+    maxAge: new Date(253402300000000), // Approximately Friday, 31 Dec 9999 23:59:59 GMT
+    saveUninitialized: false,
+    resave: false, //avoid server race condition
+    // store: MongoStore.create({ mongoUrl: process.env.CON_STR }),
+  })
+);
+
+//set session verify
+const verifyUser = (req, res, next) => {
+  if (req.session.isVerified) {
+    next();
+  } else {
+    console.log("not authenticated,please login first");
+    // res.redirect("/login");
+  }
+};
+
+app.get("/", (req, res) => {
+  req.session.isVerified = true;
+  console.log(req.session);
+  console.log(req.sessionID);
+  res.send("這是首頁");
+});
+// app.set("view engine", "ejs");
+app.use(userRouter);
+app.use(editorRouter);
+app.use(tagRouter);
+
 // server.listen(4200)
+app.listen(PORT, () => {
+  console.log(`server started at port ${PORT}`);
+});
 
 // io.listen(server);
-app.listen(PORT, (a, b, c, d) => {
-    console.log(`server started at port ${PORT}`)
-})

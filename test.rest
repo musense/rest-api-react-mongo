@@ -15,6 +15,61 @@
 
 ###
 
-GET http://localhost:4200/editor/page?content=iPhone%2014%E3%80%82Pro
+GET http://localhost:4200/user/test2
 Content-Type: application/json
 
+###
+POST http://localhost:4200/user/register
+Content-Type: application/json
+
+{
+  "email": "test4@gmail.com",
+  "username": "test4",
+  "password": "Test1234"
+}
+
+###
+GET http://localhost:4200/tags
+
+###
+POST http://localhost:4200/tags
+Content-Type: application/json
+
+{
+  "id":2,
+  "name": "test2",
+  "showOnPage": true,
+  "taggedNumber": 2
+}
+
+###
+DELETE http://localhost:4200/tags/1
+
+###
+PATCH http://localhost:4200/tags/2
+Content-Type: application/json
+
+{
+     "name": "test10"
+}
+
+
+
+###
+PATCH http://localhost:4200/user/test1
+Content-Type: application/json
+
+{
+     "password": "1234Test"
+}
+
+
+
+###
+POST http://localhost:4200/login
+Content-Type: application/json
+
+{
+   "email": "test4@gmail.com",
+  "password": "Test1234"
+}
