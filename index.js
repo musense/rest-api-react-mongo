@@ -50,21 +50,13 @@ const verifyUser = (req, res, next) => {
   if (req.session.isVerified) {
     next();
   } else {
-    console.log("not authenticated,please login first");
-    // res.redirect("/login");
+    return res.status(404).json({ message: "Please login first" });
   }
 };
 
-app.get("/", (req, res) => {
-  req.session.isVerified = true;
-  console.log(req.session);
-  console.log(req.sessionID);
-  res.send("這是首頁");
-});
-// app.set("view engine", "ejs");
 app.use(userRouter);
-app.use(editorRouter);
-app.use(tagRouter);
+app.use(verifyUser, editorRouter);
+app.use(verifyUser, tagRouter);
 
 // server.listen(4200)
 app.listen(PORT, () => {

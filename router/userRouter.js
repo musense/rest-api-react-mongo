@@ -5,6 +5,14 @@ const saltRounds = 10; // 8, 10, 12, 14
 
 const userRouter = new express.Router();
 
+const verifyUser = (req, res, next) => {
+  if (req.session.isVerified) {
+    next();
+  } else {
+    return res.status(404).json({ message: "Please login first" });
+  }
+};
+
 async function getUser(req, res, next) {
   const { username } = req.params;
   console.log(`getUser req.params.username: ${req.params.username}`);
@@ -22,7 +30,7 @@ async function getUser(req, res, next) {
   next();
 }
 
-userRouter.get("/user", async (req, res) => {
+userRouter.get("/user", verifyUser, async (req, res) => {
   try {
     const userList = await User.find().limit(10).sort({ username: 1 });
     // console.log(`router get user: ${JSON.stringify(res.json(user))}`)
@@ -43,7 +51,7 @@ userRouter.get("/user", async (req, res) => {
 // })
 
 // test
-userRouter.get("/user/:username", getUser, async (req, res) => {
+userRouter.get("/user/:username", verifyUser, getUser, async (req, res) => {
   res.send(res.user);
 });
 
@@ -113,7 +121,7 @@ userRouter.post("/user/register", async (req, res) => {
 });
 
 // delete user account
-userRouter.delete("/user/:username", getUser, async (req, res) => {
+userRouter.delete("/user/:username", verifyUser, getUser, async (req, res) => {
   try {
     await res.user.remove();
     res.json({ message: "Delete user successful!" });
@@ -124,7 +132,7 @@ userRouter.delete("/user/:username", getUser, async (req, res) => {
 
 // modify user account
 // TODO: add personal info
-userRouter.patch("/user/:username", getUser, async (req, res) => {
+userRouter.patch("/user/:username", verifyUser, getUser, async (req, res) => {
   const { email, password } = req.body;
   try {
     const patchHash = await bcrypt.hash(password, saltRounds);
