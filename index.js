@@ -35,9 +35,10 @@ app.use(
     cookie: {
       secure: false, //if set true only excute on https
       // path: userRouter,
+      // maxAge: new Date(253402300000000), // Approximately Friday, 31 Dec 9999 23:59:59 GMT
       expires: 1800000,
     },
-    maxAge: new Date(253402300000000), // Approximately Friday, 31 Dec 9999 23:59:59 GMT
+    maxAge: 1800000, // Approximately Friday, 31 Dec 9999 23:59:59 GMT
     saveUninitialized: false,
     resave: false, //avoid server race condition
     // store: MongoStore.create({ mongoUrl: process.env.CON_STR }),
