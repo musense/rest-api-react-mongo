@@ -15,8 +15,8 @@ const app = express();
 const PORT = process.env.PORT || 4200;
 // const CorsOrgin
 const corsOrgin = process.env.CORS_STR || "http://localhost:3000";
-// const ssl = https.createServer(app)
-// const server = https.createServer(app);
+// const ssl
+const ssl = https.createServer(app);
 
 const corsOptions = {
   origin: corsOrgin,
