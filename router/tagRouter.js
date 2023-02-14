@@ -23,9 +23,10 @@ async function readTagsAndSend(req, res, next) {
 
 async function getAllTags(req, res, next) {
     try {
-        const tagList = await Tag.find({}).select('-updatedAt -createdAt -__v')
-            .limit(10)
+        const tagList = await Tag.find({}).select('name showOnPage ')
+            // .limit(10)
             .sort({ id: 1 })
+        console.log(tagList)
         res.tagList = tagList
         next()
     } catch (e) {
@@ -63,7 +64,7 @@ tagRouter.get('/tags/:id'
     })
 
 tagRouter.post('/tags'
-    , getAllTags
+    // , getAllTags
     , async (req, res) => {
         const { id, name, showOnPage, taggedNumber } = req.body
         const tag = new Tag({ id, name, showOnPage, taggedNumber, })

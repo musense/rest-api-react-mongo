@@ -20,7 +20,8 @@ const server = http.createServer(app)
 // const ssl = https.createServer(app)
 
 const corsOptions = {
-    origin: 'http://localhost:3000',
+    // origin: 'http://localhost:3000',
+    origin: '*',
     optionsSuccessStatus: 200 //
     //some legacy browsers (IE11, various SmartTVs) choke on 204
 }
@@ -32,6 +33,6 @@ app.use(userRouter)
 // server.listen(4200)
 
 // io.listen(server);
-app.listen(PORT, (a, b, c, d) => {
+app.listen(PORT, () => {
     console.log(`server started at port ${PORT}`)
 })
