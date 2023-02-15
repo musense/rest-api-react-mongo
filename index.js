@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 4200;
 // const CorsOrgin
 const corsOrgin = process.env.CORS_STR || "http://localhost:3000";
 // const ssl
-const ssl = https.createServer(app);
+// const ssl = https.createServer(app);
 
 const corsOptions = {
   origin: corsOrgin,
