@@ -40,21 +40,6 @@ userRouter.get("/user", verifyUser, async (req, res) => {
   }
 });
 
-// deprecated
-// router.get('/user/loginByEmail/:email/:password', getUser, async (req, res) => {
-//     res.send(res.user)
-// })
-// deprecated
-// router.get('/user/loginByName/:username/:password', getUser, async (req, res) => {
-
-//     res.send(res.user)
-// })
-
-// test
-userRouter.get("/user/:username", verifyUser, getUser, async (req, res) => {
-  res.send(res.user);
-});
-
 // login
 userRouter.post("/login", async (req, res) => {
   const { email, username, password } = req.body;
@@ -102,7 +87,7 @@ userRouter.post("/logout", async (req, res) => {
 });
 
 // register
-userRouter.post("/user/register", async (req, res) => {
+userRouter.post("/register", async (req, res) => {
   const { email, username, password } = req.body;
   try {
     // throw new Error('add error!!!')
@@ -131,7 +116,6 @@ userRouter.delete("/user/:username", verifyUser, getUser, async (req, res) => {
 });
 
 // modify user account
-// TODO: add personal info
 userRouter.patch("/user/:username", verifyUser, getUser, async (req, res) => {
   const { email, password } = req.body;
   try {

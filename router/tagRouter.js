@@ -24,9 +24,9 @@ async function readTagsAndSend(req, res, next) {
 async function getAllTags(req, res, next) {
   try {
     const tagList = await Tag.find({})
-      .select("-updatedAt -createdAt -__v")
-      .limit(10)
+      // .limit(10)
       .sort({ id: 1 });
+    console.log(tagList);
     res.tagList = tagList;
     next();
   } catch (e) {
@@ -58,16 +58,20 @@ tagRouter.get("/tags/:id", getTag, async (req, res) => {
   res.send(res.tag);
 });
 
-tagRouter.post("/tags", getAllTags, async (req, res) => {
-  const { id, name, showOnPage, taggedNumber } = req.body;
-  const tag = new Tag({ id, name, showOnPage, taggedNumber });
-  try {
-    const saveTag = await tag.save();
-    res.status(201).json(saveTag);
-  } catch (e) {
-    res.status(500).send({ message: e.message });
+tagRouter.post(
+  "/tags",
+  // , getAllTags
+  async (req, res) => {
+    const { id, name, showOnPage, taggedNumber } = req.body;
+    const tag = new Tag({ id, name, showOnPage, taggedNumber });
+    try {
+      const saveTag = await tag.save();
+      res.status(201).json(saveTag);
+    } catch (e) {
+      res.status(500).send({ message: e.message });
+    }
   }
-});
+);
 
 tagRouter.delete(
   "/tags/:id",

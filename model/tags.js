@@ -23,7 +23,7 @@ const tagsSchema = mongoose.Schema({
         unique: true,
     },
     showOnPage: {
-        type: Boolean,
+        type: String,
         default: false,
         trim: true,
     },

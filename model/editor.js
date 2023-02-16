@@ -18,6 +18,23 @@ const editorSchema = mongoose.Schema({
         required: true,
         trim: true,
     },
+    tags: {
+        type: [String],
+        required: false,
+        trim: true,
+    },
+    pageView: {
+        type: Number,
+        required: false,
+        trim: true,
+        default: 0,
+    },
+    recommend: {
+        type: Number,
+        required: false,
+        trim: true,
+        default: 0,
+    },
 },
     {
         timestamps: true,
