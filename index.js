@@ -16,18 +16,18 @@ const PORT = process.env.PORT || 4200;
 // const CorsOrgin
 const corsOrgin = process.env.CORS_STR || "http://localhost:3000";
 // const ssl
-// const ssl = https.createServer(app);
+const ssl = https.createServer(app);
 
 const corsOptions = {
   origin: corsOrgin,
   optionsSuccessStatus: 200, //
   //some legacy browsers (IE11, various SmartTVs) choke on 204
 };
-app.use(express.json());
-app.use(cors(corsOptions));
+ssl.use(express.json());
+ssl.use(cors(corsOptions));
 
 //set session attribute
-app.use(
+ssl.use(
   session({
     secret: process.env.SESSIONSECRETKEY,
     // secret: crypto.randomUUID(),
@@ -54,12 +54,12 @@ const verifyUser = (req, res, next) => {
   }
 };
 
-app.use(userRouter);
-app.use(verifyUser, editorRouter);
-app.use(verifyUser, tagRouter);
+ssl.use(userRouter);
+ssl.use(verifyUser, editorRouter);
+ssl.use(verifyUser, tagRouter);
 
 // server.listen(4200)
-app.listen(PORT, () => {
+ssl.listen(PORT, () => {
   console.log(`server started at port ${PORT}`);
 });
 
