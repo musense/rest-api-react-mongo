@@ -6,8 +6,7 @@ const userRouter = require("./router/userRouter");
 require("dotenv").config();
 require("./mongoose");
 const session = require("express-session");
-
-// const https = require('https')
+const https = require("https");
 // const io = require('socket.io')
 
 const app = express();
@@ -23,11 +22,12 @@ const corsOptions = {
   optionsSuccessStatus: 200, //
   //some legacy browsers (IE11, various SmartTVs) choke on 204
 };
-ssl.use(express.json());
-ssl.use(cors(corsOptions));
+
+app.use(express.json());
+app.use(cors(corsOptions));
 
 //set session attribute
-ssl.use(
+app.use(
   session({
     secret: process.env.SESSIONSECRETKEY,
     // secret: crypto.randomUUID(),
@@ -54,9 +54,9 @@ const verifyUser = (req, res, next) => {
   }
 };
 
-ssl.use(userRouter);
-ssl.use(verifyUser, editorRouter);
-ssl.use(verifyUser, tagRouter);
+app.use(userRouter);
+app.use(verifyUser, editorRouter);
+app.use(verifyUser, tagRouter);
 
 // server.listen(4200)
 ssl.listen(PORT, () => {
