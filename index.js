@@ -6,6 +6,7 @@ const userRouter = require("./router/userRouter");
 require("dotenv").config();
 require("./mongoose");
 const session = require("express-session");
+const fs = require("fs");
 const https = require("https");
 // const io = require('socket.io')
 
@@ -15,7 +16,21 @@ const PORT = process.env.PORT || 4200;
 // const CorsOrgin
 const corsOrgin = process.env.CORS_STR || "http://localhost:3000";
 // const ssl
-const ssl = https.createServer(app);
+const ssl = https.createServer(
+  {
+    key: fs.readFileSync(
+      "./etc/letsencrypt/live/bd.kashinobi.com/privkey.pem",
+      {
+        encoding: "utf8",
+      }
+    ),
+    cert: fs.readFileSync(
+      "./etc/letsencrypt/live/bd.kashinobi.com/fullchain.pem",
+      { encoding: "utf8" }
+    ),
+  },
+  app
+);
 
 const corsOptions = {
   origin: corsOrgin,
