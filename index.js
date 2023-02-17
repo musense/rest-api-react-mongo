@@ -45,7 +45,7 @@ app.use(
     // secret: crypto.randomUUID(),
     name: "sid", // optional
     cookie: {
-      secure: false, //if set true only excute on https
+      secure: true, //if set true only excute on https
       // path: userRouter,
       // maxAge: new Date(253402300000000), // Approximately Friday, 31 Dec 9999 23:59:59 GMT
       expires: 1800000,
