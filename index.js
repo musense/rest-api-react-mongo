@@ -18,14 +18,11 @@ const corsOrgin = process.env.CORS_STR || "http://localhost:3000";
 // const ssl
 const ssl = https.createServer(
   {
-    key: fs.readFileSync(
-      "./etc/letsencrypt/live/bd.kashinobi.com/privkey.pem",
-      {
-        encoding: "utf8",
-      }
-    ),
+    key: fs.readFileSync("/etc/letsencrypt/live/bd.kashinobi.com/privkey.pem", {
+      encoding: "utf8",
+    }),
     cert: fs.readFileSync(
-      "./etc/letsencrypt/live/bd.kashinobi.com/fullchain.pem",
+      "/etc/letsencrypt/live/bd.kashinobi.com/fullchain.pem",
       { encoding: "utf8" }
     ),
   },
@@ -70,8 +67,8 @@ const verifyUser = (req, res, next) => {
 };
 
 app.use(userRouter);
-app.use(verifyUser, editorRouter);
-app.use(verifyUser, tagRouter);
+app.use(editorRouter);
+app.use(tagRouter);
 
 // server.listen(4200)
 ssl.listen(PORT, () => {
