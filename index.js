@@ -48,7 +48,7 @@ app.use(
       secure: true, //if set true only excute on https
       // path: userRouter,
       // maxAge: new Date(253402300000000), // Approximately Friday, 31 Dec 9999 23:59:59 GMT
-      domain: "kashinobi.com",
+      domain: ".kashinobi.com",
       expires: 1800000,
     },
     maxAge: 1800000, // Approximately Friday, 31 Dec 9999 23:59:59 GMT
@@ -61,7 +61,7 @@ app.use(
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Credentials", true);
   res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE");
+  res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,PATCH");
   res.header(
     "Access-Control-Allow-Headers",
     "X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept"
