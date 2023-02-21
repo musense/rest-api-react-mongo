@@ -1,4 +1,3 @@
-const { ObjectId } = require('mongodb')
 const mongoose = require('mongoose')
 
 function validatorGTZ(value) {
@@ -9,12 +8,10 @@ const many = [
     { validator: Number.isInteger, msg: 'TaggedNumber is not an integer!' }
 ]
 const tagsSchema = mongoose.Schema({
-    id: {
-        type: Number,
-        required: true,
-        trim: true,
-        unique: true,
-
+    forceTrend: {
+        type: Boolean,
+        required: false,
+        default: false
     },
     name: {
         type: String,

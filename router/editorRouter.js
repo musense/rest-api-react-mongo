@@ -103,6 +103,7 @@ async function getEditor(req, res, next) {
     next()
 }
 
+//! deprecated
 async function getEditorByTitle(req, res, next) {
     const title = req.params.title
     console.log(title)
@@ -295,6 +296,33 @@ editorRouter.delete('/editor/:title'
             res.status(500).send({ message: e.message })
         }
     })
+
+editorRouter.get('/editor/tag/:tag'
+    , async (req, res, next) => {
+        const tag = req.params.tag
+        console.log(tag)
+        try {
+            const editors = await Editor.find()
+
+            const editorsIncludesTag = editors.filter(editor => editor.tags.includes(tag.toLowerCase()))
+
+            res.editor = editorsIncludesTag
+            next()
+        } catch (e) {
+            res.status(500).send({ message: e.message })
+        }
+    }
+    , parseJSON
+    , async (req, res) => {
+        const { editor: editorList } = res
+        try {
+            res.send(editorList)
+        } catch (e) {
+            res.status(500).send({ message: e.message })
+        }
+    })
+
+
 module.exports = editorRouter
 
 
