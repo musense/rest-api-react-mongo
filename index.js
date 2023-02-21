@@ -49,7 +49,7 @@ app.use(
       // path: userRouter,
       // maxAge: new Date(253402300000000), // Approximately Friday, 31 Dec 9999 23:59:59 GMT
       httpOnly: false,
-      domain: "bp.kashinobi.com",
+      // domain: "bp.kashinobi.com",
       expires: 1800000,
     },
     maxAge: 1800000, // Approximately Friday, 31 Dec 9999 23:59:59 GMT
@@ -78,6 +78,11 @@ const verifyUser = (req, res, next) => {
     return res.status(404).json({ message: "Please login first" });
   }
 };
+
+app.get("/", (req, res) => {
+  req.session.isVerified = true;
+  res.send("Cookie設定成功");
+});
 
 app.use(userRouter);
 app.use(editorRouter);
