@@ -81,8 +81,8 @@ const verifyUser = (req, res, next) => {
 };
 
 app.use(userRouter);
-app.use(editorRouter);
-app.use(tagRouter);
+app.use(editorRouter, verifyUser);
+app.use(tagRouter, verifyUser);
 
 // server.listen(4200)
 ssl.listen(PORT, () => {
