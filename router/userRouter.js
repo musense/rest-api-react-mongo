@@ -93,7 +93,7 @@ userRouter.post("/register", async (req, res) => {
     let checkUser = await User.findOne({ username });
     if (checkUser.username == username) {
       return res.status(400).json({ message: "username has benn used" });
-    } else if (checkUser.email == email) {
+    } else if (checkUser.username == null && checkUser.email == email) {
       return res.status(400).json({ message: "email has benn used" });
     } else {
       const postHash = await bcrypt.hash(password, saltRounds);
