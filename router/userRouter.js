@@ -92,7 +92,7 @@ userRouter.post("/register", async (req, res) => {
   try {
     let checkUser = await User.findOne({ username });
     let checkEmail = await User.findOne({ email });
-    if (checkUser.username) {
+    if (checkUser) {
       return res.status(400).json({ message: "username has been used" });
     } else if (checkEmail) {
       return res.status(400).json({ message: "email has been used" });
