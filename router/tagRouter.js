@@ -1,16 +1,15 @@
 const express = require("express");
 const Tag = require("../model/tags");
 
-const tagRouter = new express.Router();
-
+const tagRouter = new express.Router()
 // *simulate delay situation in real world
-tagRouter.use(function (req, res, next) {
-  console.time("simulate get tag delay...");
-  setTimeout(() => {
-    next();
-    console.timeEnd("simulate get tag delay...");
-  }, 0 * 1000);
-});
+// tagRouter.use(function (req, res, next) {
+//     console.time('simulate get tag delay...')
+//     setTimeout(() => {
+//         next()
+//         console.timeEnd('simulate get tag delay...')
+//     }, 0 * 1000)
+// })
 
 async function readTagsAndSend(req, res, next) {
   const { tagList } = res;

@@ -1,12 +1,6 @@
 const mongoose = require('mongoose')
 
 const editorSchema = mongoose.Schema({
-    id: {
-        type: Number,
-        required: true,
-        trim: true,
-        unique: true,
-    },
     title: {
         type: String,
         required: true,
