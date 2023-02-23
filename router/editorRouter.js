@@ -81,6 +81,7 @@ function parseJSON(req, res, next) {
   next();
 }
 
+//* _id
 async function getEditor(req, res, next) {
   const id = req.params.id;
   // console.log(`getEditor req.params.id: ${req.params.id}`)
@@ -89,26 +90,6 @@ async function getEditor(req, res, next) {
   let editor;
   try {
     editor = await Editor.findOne({ _id: id });
-    // return res.json(editor)
-    if (editor == undefined) {
-      return res.status(404).json({ message: "can't find editor!" });
-    }
-  } catch (e) {
-    return res.status(500).send({ message: e.message });
-  }
-  res.editor = editor;
-  next();
-}
-
-//! deprecated
-async function getEditorByTitle(req, res, next) {
-  const title = req.params.title;
-  console.log(title);
-  // console.log(req)
-
-  let editor;
-  try {
-    editor = await Editor.findOne({ title });
     // return res.json(editor)
     if (editor == undefined) {
       return res.status(404).json({ message: "can't find editor!" });
@@ -131,28 +112,31 @@ async function getAllEditor(req, res, next) {
   next();
 }
 
-editorRouter.get("/editor", getAllEditor, parseJSON, async (req, res) => {
-  const { editor: editorList } = res;
-  try {
-    res.send(editorList);
-  } catch (e) {
-    res.status(500).send({ message: e.message });
-  }
-});
+editorRouter.get("/editor"
+  , getAllEditor
+  , parseJSON
+  , async (req, res) => {
+    const { editor: editorList } = res;
+    try {
+      res.send(editorList);
+    } catch (e) {
+      res.status(500).send({ message: e.message });
+    }
+  });
 
 // *get only title & _id field
 editorRouter.get("/editor/title"
   , async (req, res) => {
     try {
-      const editor = await Editor.find({}).select("id title updatedAt");
+      const editor = await Editor.find({}).select("title updatedAt");
       // .limit(10)
-      // .sort({ id: 1 })
       res.send(editor);
     } catch (e) {
       res.status(500).send({ message: e.message });
     }
   });
 
+  //* _id
 editorRouter.get(
   "/editor/:id",
   getEditor,
@@ -162,6 +146,7 @@ editorRouter.get(
   }
 );
 
+//* _id
 editorRouter.patch("/editor/:id",
   parseTitle,
   parseTags,
@@ -204,11 +189,7 @@ editorRouter.post("/editor",
       res.status(400).send({ message });
     } else {
       // const editor = new Editor();
-      const id =
-        (await Editor.find({}).select("-_id id").sort({ id: -1 }))[0]["id"] + 1;
-
       const editor = new Editor({
-        id,
         title,
         content: jsonDataString,
         tags,
@@ -218,7 +199,6 @@ editorRouter.post("/editor",
 
         res.status(201).json({
           _id: saveEditor._id,
-          id,
           title,
           content: req.body.content,
           tags,
@@ -230,6 +210,7 @@ editorRouter.post("/editor",
   }
 );
 
+//! deprecated
 editorRouter.post("/editor/like/:id"
   , getEditor
   , async (req, res) => {
@@ -271,6 +252,7 @@ editorRouter.get('/editor/tag/:tag'
     }
   })
 
+  //! deprecated
 editorRouter.post('/editor/like/:id'
   , getEditor
   , async (req, res) => {
@@ -302,7 +284,7 @@ editorRouter.delete('/editor/bunchDeleteByIds'
     }
   })
 
-
+//* _id
 editorRouter.delete('/editor/:id'
   , async (req, res) => {
     try {
