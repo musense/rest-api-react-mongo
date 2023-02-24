@@ -14,7 +14,7 @@ const app = express();
 // const PORT = 4200
 const PORT = process.env.PORT || 4200;
 // const CorsOrgin
-const corsOrgin = process.env.CORS_STR || "http://localhost:3000";
+// const corsOrgin = process.env.CORS_STR || "http://localhost:3000";
 // const ssl
 const ssl = https.createServer(
   {
@@ -30,9 +30,10 @@ const ssl = https.createServer(
 );
 
 const corsOptions = {
-  origin: true,
+  origin: ["https://www.kashinobi.com", "https://bp.kashinobi.com"],
   optionsSuccessStatus: 200, //
   credentials: true,
+  // methods: ["GET", "POST", "PUT", "DELETE"],
   //some legacy browsers (IE11, various SmartTVs) choke on 204
 };
 
@@ -62,7 +63,11 @@ app.use(
 
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Credentials", true);
-  res.header("Access-Control-Allow-Origin", req.headers.origin);
+  res.header(
+    "Access-Control-Allow-Origin",
+    "https://www.kashinobi.com",
+    "https://bp.dashboard.kashinobi.com"
+  );
   res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,PATCH");
   res.header(
     "Access-Control-Allow-Headers",
