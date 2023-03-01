@@ -2,6 +2,7 @@ const express = require("express");
 const { json2html } = require("html2json");
 const Editor = require("../model/editor");
 const html2json = require("html2json").html2json;
+const multer = require("multer");
 
 const editorRouter = new express.Router();
 
@@ -112,31 +113,46 @@ async function getAllEditor(req, res, next) {
   next();
 }
 
-editorRouter.get("/editor"
-  , getAllEditor
-  , parseJSON
-  , async (req, res) => {
-    const { editor: editorList } = res;
-    try {
-      res.send(editorList);
-    } catch (e) {
-      res.status(500).send({ message: e.message });
-    }
-  });
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "/home/saved_image");
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
+});
+
+const upload = multer({ storage: storage });
+
+editorRouter.post("/upload", upload.single("image"), async (req, res) => {
+  try {
+    res.json({ message: "File uploaded successfully" });
+  } catch (e) {
+    res.status(500).send({ message: e.message });
+  }
+});
+
+editorRouter.get("/editor", getAllEditor, parseJSON, async (req, res) => {
+  const { editor: editorList } = res;
+  try {
+    res.send(editorList);
+  } catch (e) {
+    res.status(500).send({ message: e.message });
+  }
+});
 
 // *get only title & _id field
-editorRouter.get("/editor/title"
-  , async (req, res) => {
-    try {
-      const editor = await Editor.find({}).select("title updatedAt");
-      // .limit(10)
-      res.send(editor);
-    } catch (e) {
-      res.status(500).send({ message: e.message });
-    }
-  });
+editorRouter.get("/editor/title", async (req, res) => {
+  try {
+    const editor = await Editor.find({}).select("title updatedAt");
+    // .limit(10)
+    res.send(editor);
+  } catch (e) {
+    res.status(500).send({ message: e.message });
+  }
+});
 
-  //* _id
+//* _id
 editorRouter.get(
   "/editor/:id",
   getEditor,
@@ -147,7 +163,8 @@ editorRouter.get(
 );
 
 //* _id
-editorRouter.patch("/editor/:id",
+editorRouter.patch(
+  "/editor/:id",
   parseTitle,
   parseTags,
   parseHTML,
@@ -172,7 +189,8 @@ editorRouter.patch("/editor/:id",
   }
 );
 
-editorRouter.post("/editor",
+editorRouter.post(
+  "/editor",
   parseTitle,
   parseTags,
   parseHTML,
@@ -211,98 +229,95 @@ editorRouter.post("/editor",
 );
 
 //! deprecated
-editorRouter.post("/editor/like/:id"
-  , getEditor
-  , async (req, res) => {
-    if (!(req.body.thumbUp && req.body.thumbUp === "LIKE+1")) {
-      res.status(400).send({ message: "format not correct" });
-      return;
-    }
+editorRouter.post("/editor/like/:id", getEditor, async (req, res) => {
+  if (!(req.body.thumbUp && req.body.thumbUp === "LIKE+1")) {
+    res.status(400).send({ message: "format not correct" });
+    return;
+  }
+  try {
+    res.editor.thumbUp = res.editor.thumbUp + 1;
+    const saveEditor = await res.editor.save();
+    res.status(201).json(saveEditor.thumbUp);
+  } catch (e) {
+    res.status(500).send({ message: e.message });
+  }
+});
+
+editorRouter.get(
+  "/editor/tag/:tag",
+  async (req, res, next) => {
+    const tag = req.params.tag;
+    console.log(tag);
     try {
-      res.editor.thumbUp = res.editor.thumbUp + 1;
-      const saveEditor = await res.editor.save();
-      res.status(201).json(saveEditor.thumbUp);
+      const editors = await Editor.find();
+
+      const editorsIncludesTag = editors.filter((editor) =>
+        editor.tags.includes(tag.toLowerCase())
+      );
+
+      res.editor = editorsIncludesTag;
+      next();
     } catch (e) {
       res.status(500).send({ message: e.message });
     }
-  });
-
-editorRouter.get('/editor/tag/:tag'
-  , async (req, res, next) => {
-    const tag = req.params.tag
-    console.log(tag)
+  },
+  parseJSON,
+  async (req, res) => {
+    const { editor: editorList } = res;
     try {
-      const editors = await Editor.find()
-
-      const editorsIncludesTag = editors.filter(editor => editor.tags.includes(tag.toLowerCase()))
-
-      res.editor = editorsIncludesTag
-      next()
+      res.send(editorList);
     } catch (e) {
-      res.status(500).send({ message: e.message })
+      res.status(500).send({ message: e.message });
     }
   }
-  , parseJSON
-  , async (req, res) => {
-    const { editor: editorList } = res
-    try {
-      res.send(editorList)
-    } catch (e) {
-      res.status(500).send({ message: e.message })
-    }
-  })
+);
 
-  //! deprecated
-editorRouter.post('/editor/like/:id'
-  , getEditor
-  , async (req, res) => {
-    if (!(req.body.thumbUp && req.body.thumbUp === 'LIKE+1')) {
-      res.status(400).send({ message: 'format not correct' })
-      return
-    }
-    try {
-      res.editor.thumbUp = res.editor.thumbUp + 1
-      const saveEditor = await res.editor.save()
-      res.status(201).json(saveEditor.thumbUp)
-    } catch (e) {
-      res.status(500).send({ message: e.message })
-    }
-  })
+//! deprecated
+editorRouter.post("/editor/like/:id", getEditor, async (req, res) => {
+  if (!(req.body.thumbUp && req.body.thumbUp === "LIKE+1")) {
+    res.status(400).send({ message: "format not correct" });
+    return;
+  }
+  try {
+    res.editor.thumbUp = res.editor.thumbUp + 1;
+    const saveEditor = await res.editor.save();
+    res.status(201).json(saveEditor.thumbUp);
+  } catch (e) {
+    res.status(500).send({ message: e.message });
+  }
+});
 
-
-
-
-editorRouter.delete('/editor/bunchDeleteByIds'
+editorRouter.delete(
+  "/editor/bunchDeleteByIds",
   // , getEditor
-  , async (req, res) => {
+  async (req, res) => {
     try {
       // console.log(req.body.ids)
-      await Editor.deleteMany({ _id: req.body.ids })
-      res.status(201).json({ message: "Delete editor successful!" })
+      await Editor.deleteMany({ _id: req.body.ids });
+      res.status(201).json({ message: "Delete editor successful!" });
     } catch (e) {
-      res.status(500).send({ message: e.message })
+      res.status(500).send({ message: e.message });
     }
-  })
+  }
+);
 
 //* _id
-editorRouter.delete('/editor/:id'
-  , async (req, res) => {
-    try {
-      await Editor.deleteOne({ _id: req.body.id })
-      res.json({ message: "Delete editor successful!" })
-    } catch (e) {
-      res.status(500).send({ message: e.message })
-    }
-  })
+editorRouter.delete("/editor/:id", async (req, res) => {
+  try {
+    await Editor.deleteOne({ _id: req.body.id });
+    res.json({ message: "Delete editor successful!" });
+  } catch (e) {
+    res.status(500).send({ message: e.message });
+  }
+});
 
-editorRouter.delete('/editor/:title'
-  , async (req, res) => {
-    try {
-      await Editor.deleteOne({ title: req.body.title })
-      res.json({ message: "Delete editor successful!" })
-    } catch (e) {
-      res.status(500).send({ message: e.message })
-    }
-  })
+editorRouter.delete("/editor/:title", async (req, res) => {
+  try {
+    await Editor.deleteOne({ title: req.body.title });
+    res.json({ message: "Delete editor successful!" });
+  } catch (e) {
+    res.status(500).send({ message: e.message });
+  }
+});
 
 module.exports = editorRouter;
