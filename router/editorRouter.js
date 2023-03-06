@@ -3,6 +3,8 @@ const { json2html } = require("html2json");
 const Editor = require("../model/editor");
 const html2json = require("html2json").html2json;
 const multer = require("multer");
+const sharp = require("sharp");
+const fs = require("fs");
 
 const editorRouter = new express.Router();
 
@@ -113,19 +115,32 @@ async function getAllEditor(req, res, next) {
   next();
 }
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "/home/saved_image");
+const storage = multer.memoryStorage();
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 10000000, //maximim size 10MB
   },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
+  fileFilter: function (req, file, cb) {
+    // 檢查文件類型，僅允許圖像檔案上傳
+    if (!file.mimetype.startsWith("image/")) {
+      return cb(new Error("Image file only"), false);
+    }
+    cb(null, true);
   },
 });
 
-const upload = multer({ storage: storage });
-
 editorRouter.post("/upload", upload.single("image"), async (req, res) => {
   try {
+    // compress image using sharp
+    const compressedImage = await sharp(req.file.buffer)
+      .resize(1024, 1024, { fit: "inside", withoutEnlargement: true })
+      .toBuffer({ resolveWithObject: true, quality: 80 });
+
+    // save compressed image to disk
+    const filename = Date.now() + "-" + req.file.originalname;
+    fs.writeFileSync(`/home/saved_image/${filename}`, compressedImage.data);
+
     res.json({ message: "File uploaded successfully" });
   } catch (e) {
     res.status(500).send({ message: e.message });
