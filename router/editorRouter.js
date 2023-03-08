@@ -5,6 +5,7 @@ const html2json = require("html2json").html2json;
 const multer = require("multer");
 const sharp = require("sharp");
 const fs = require("fs");
+const Sitemap = require("../model/sitemap");
 
 const editorRouter = new express.Router();
 
@@ -116,6 +117,7 @@ async function getAllEditor(req, res, next) {
 }
 
 const storage = multer.memoryStorage();
+
 const upload = multer({
   storage: storage,
   limits: {
@@ -211,12 +213,15 @@ editorRouter.post(
   parseHTML,
   async (req, res, next) => {
     let message = "";
-    const { title, tags, jsonDataString } = res;
+    const { title, tags, jsonDataString, alias } = res;
     if (title === null) {
       message += "title is required\n";
     }
     if (jsonDataString === null) {
       message += "content is required\n";
+    }
+    if (!alias) {
+      title = alias;
     }
     if (message) {
       res.status(400).send({ message });
@@ -229,12 +234,19 @@ editorRouter.post(
       });
       try {
         const saveEditor = await editor.save();
-
+        const referer = req.headers.referer || req.headers.referrer;
+        const newUrl = new Sitemap({
+          url: `${referer}content/${title}`,
+          originalID: saveEditor._id,
+          type: "editor",
+        });
+        await newUrl.save();
         res.status(201).json({
           _id: saveEditor._id,
           title,
           content: req.body.content,
           tags,
+          newUrl: newUrl.url,
         });
       } catch (e) {
         return res.status(500).send({ message: e.message });
@@ -307,8 +319,20 @@ editorRouter.delete(
   // , getEditor
   async (req, res) => {
     try {
-      // console.log(req.body.ids)
-      await Editor.deleteMany({ _id: req.body.ids });
+      const ids = req.body.ids;
+      // console.log(req.body.ids);
+      const deleteSitemap = await Sitemap.deleteMany({
+        originalID: { $in: ids },
+        type: "editor",
+      });
+      const deleteEditor = await Editor.deleteMany({ _id: { $in: ids } });
+      if (deleteEditor.deletedCount === 0) {
+        return res.status(404).json({ message: "No matching editor found" });
+      }
+      if (deleteEditor.deletedCount !== deleteSitemap.deletedCount) {
+        return res.status(404).json({ message: "No matching sitemap found" });
+      }
+
       res.status(201).json({ message: "Delete editor successful!" });
     } catch (e) {
       res.status(500).send({ message: e.message });
@@ -316,7 +340,7 @@ editorRouter.delete(
   }
 );
 
-//* _id
+//! deprecated* _id
 editorRouter.delete("/editor/:id", async (req, res) => {
   try {
     await Editor.deleteOne({ _id: req.body.id });
@@ -326,6 +350,7 @@ editorRouter.delete("/editor/:id", async (req, res) => {
   }
 });
 
+//! deprecated
 editorRouter.delete("/editor/:title", async (req, res) => {
   try {
     await Editor.deleteOne({ title: req.body.title });

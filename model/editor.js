@@ -1,41 +1,47 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
 
-const editorSchema = mongoose.Schema({
+const editorSchema = mongoose.Schema(
+  {
     title: {
-        type: String,
-        required: true,
-        trim: true,
-        unique: true,
+      type: String,
+      required: true,
+      trim: true,
+      unique: true,
     },
     content: {
-        type: String,
-        required: true,
-        trim: true,
+      type: String,
+      required: true,
+      trim: true,
     },
     tags: {
-        type: [String],
-        required: false,
-        trim: true,
+      type: [String],
+      required: false,
+      trim: true,
     },
     pageView: {
-        type: Number,
-        required: false,
-        trim: true,
-        default: 0,
+      type: Number,
+      required: false,
+      trim: true,
+      default: 0,
     },
     recommend: {
-        type: Number,
-        required: false,
-        trim: true,
-        default: 0,
+      type: Number,
+      required: false,
+      trim: true,
+      default: 0,
     },
-},
-    {
-        timestamps: true,
-    }
-)
+    alias: {
+      type: String,
+      required: false,
+      trim: true,
+      unique: true,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
 
+const Editor = mongoose.model("editor", editorSchema);
 
-const Editor = mongoose.model('editor', editorSchema)
-
-module.exports = Editor
+module.exports = Editor;
