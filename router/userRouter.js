@@ -81,7 +81,7 @@ userRouter.post("/login", async (req, res) => {
 });
 
 //logout
-userRouter.post("/logout", async (req, res) => {
+userRouter.get("/logout", async (req, res) => {
   req.session.destroy();
   return res.send("You had been logout");
 });

@@ -2,39 +2,95 @@ const mongoose = require("mongoose");
 
 const editorSchema = mongoose.Schema(
   {
+    serialNumber: {
+      type: Number,
+      trim: true,
+      unique: true,
+      required: true,
+      default: 0,
+    },
+    headTitle: {
+      type: String,
+      trim: true,
+    },
+    headKeyword: {
+      type: String,
+      trim: true,
+    },
+    headDescription: {
+      type: String,
+      trim: true,
+    },
     title: {
       type: String,
-      required: true,
       trim: true,
       unique: true,
+      required: true,
     },
     content: {
-      type: String,
+      type: Array,
+      trim: true,
       required: true,
+    },
+    htmlContent: {
+      type: String,
+      trim: true,
+      required: true,
+    },
+    categories: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "categories",
+        trim: true,
+      },
+    ],
+    originalUrl: {
+      type: String,
       trim: true,
     },
-    tags: {
-      type: [String],
-      required: false,
+    manualUrl: {
+      type: String,
       trim: true,
     },
+    altText: {
+      type: String,
+      trim: true,
+    },
+    tags: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "tags",
+        trim: true,
+      },
+    ],
     pageView: {
       type: Number,
-      required: false,
       trim: true,
       default: 0,
     },
-    recommend: {
+    topSorting: {
       type: Number,
-      required: false,
       trim: true,
-      default: 0,
     },
-    alias: {
-      type: String,
-      required: false,
+    hidden: {
+      type: Boolean,
+      default: false,
+    },
+    recommendSorting: {
+      type: Number,
       trim: true,
-      unique: true,
+    },
+    popularSorting: {
+      type: Number,
+      trim: true,
+    },
+    homeImagePath: {
+      type: String,
+      trim: true,
+    },
+    contentImagePath: {
+      type: String,
+      trim: true,
     },
   },
   {

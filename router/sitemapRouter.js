@@ -22,6 +22,11 @@ sitemapRouter.get("/sitemap.xml", async function (req, res) {
     const pipeline = smStream.pipe(createGzip());
     const urlData = await Sitemap.find({}).select("url changefreq priority");
     smStream.write({ url: "/", changefreq: "daily", priority: 0.9 });
+    smStream.write({
+      url: "/Uncategorized",
+      changefreq: "daily",
+      priority: 0.9,
+    });
     for (const url of urlData) {
       smStream.write({
         url: url.url,

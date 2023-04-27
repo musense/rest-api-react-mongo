@@ -1,8 +1,10 @@
 const express = require("express");
 const cors = require("cors");
+const sitemapRouter = require("./router/sitemapRouter");
 const tagRouter = require("./router/tagRouter");
 const editorRouter = require("./router/editorRouter");
 const userRouter = require("./router/userRouter");
+const categoryRouter = require("./router/categoryRouter");
 require("dotenv").config();
 require("./mongoose");
 const session = require("express-session");
@@ -11,11 +13,9 @@ const https = require("https");
 // const io = require('socket.io')
 
 const app = express();
-// const PORT = 4200
 const PORT = process.env.PORT || 4200;
 // const CorsOrgin
 // const corsOrgin = process.env.CORS_STR || "http://localhost:3000";
-// const ssl
 const ssl = https.createServer(
   {
     key: fs.readFileSync("/etc/letsencrypt/live/bd.kashinobi.com/privkey.pem", {
@@ -36,6 +36,45 @@ const corsOptions = {
   // methods: ["GET", "POST", "PUT", "DELETE"],
   //some legacy browsers (IE11, various SmartTVs) choke on 204
 };
+
+function getClientInfo(req) {
+  const clientInfo = {
+    http_client_ip: req.headers["http_client_ip"] || null,
+    http_x_forwarded_for: req.headers["x-forwarded-for"] || null,
+    http_x_forwarded: req.headers["x-forwarded"] || null,
+    http_x_cluster_client_ip: req.headers["x-cluster-client-ip"] || null,
+    http_forwarded_for: req.headers["forwarded-for"] || null,
+    http_forwarded: req.headers["forwarded"] || null,
+    remote_addr: req.connection.remoteAddress || null,
+    http_via: req.headers["via"] || null,
+  };
+
+  return clientInfo;
+}
+
+function logUserActivity(req, res, next) {
+  const method = req.method;
+
+  const allowedMethods = ["PUT", "POST", "PATCH", "DELETE"];
+
+  if (allowedMethods.includes(method)) {
+    const clientInfo = getClientInfo(req);
+    const logMessage = `${method} request at ${
+      req.originalUrl
+    } with client info: ${JSON.stringify(
+      clientInfo
+    )} at ${new Date().toISOString()}\n`;
+    fs.appendFile("user_activity_log.txt", logMessage, (err) => {
+      if (err) {
+        console.error("Error writing to log file:", err);
+      }
+    });
+
+    next();
+  } else {
+    next(); // Make sure to call next() for methods not in allowedMethods
+  }
+}
 
 app.use(express.json());
 app.use(cors(corsOptions));
@@ -85,9 +124,12 @@ const verifyUser = (req, res, next) => {
   }
 };
 
+app.use(logUserActivity);
+app.use(sitemapRouter);
 app.use(userRouter);
 app.use(editorRouter, verifyUser);
 app.use(tagRouter, verifyUser);
+app.use(categoryRouter, verifyUser);
 
 // server.listen(4200)
 ssl.listen(PORT, () => {
