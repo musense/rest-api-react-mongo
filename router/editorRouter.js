@@ -1231,6 +1231,8 @@ editorRouter.post(
         await newEditor.save();
 
         //save sitemap
+        let newEditorSitemap;
+
         if (newEditor) {
           let newEditorUrl;
           if (newEditor.manualUrl) {
