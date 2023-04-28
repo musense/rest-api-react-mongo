@@ -11,7 +11,6 @@ const escapeHtml = require("escape-html");
 const { Text } = require("slate");
 const { addAbortSignal } = require("stream");
 require("dotenv").config();
-require("./mongoose");
 
 const editorRouter = new express.Router();
 // *simulate delay situation in real world
@@ -26,7 +25,6 @@ const domain = process.env.DOMAIN;
 
 function parseRequestBody(req, res, next) {
   const {
-    serialNumber,
     headTitle,
     headKeyword,
     headDescription,
@@ -39,8 +37,6 @@ function parseRequestBody(req, res, next) {
     recommendSorting,
   } = req.body;
 
-  res.serialNumber =
-    serialNumber !== undefined ? JSON.parse(serialNumber) : null;
   res.headTitle = headTitle !== undefined ? JSON.parse(headTitle) : null;
   res.headKeyword = headKeyword !== undefined ? JSON.parse(headKeyword) : null;
   res.headDescription =
@@ -62,7 +58,7 @@ async function getMaxSerialNumber() {
   const maxSerialNumberEditor = await Editor.findOne()
     .sort({ serialNumber: -1 })
     .select("-_id serialNumber");
-  return maxSerialNumberEditor;
+  return maxSerialNumberEditor ? maxSerialNumberEditor.serialNumber : 0;
 }
 
 async function parseCategories(req, res, next) {
@@ -1206,7 +1202,7 @@ editorRouter.post(
           : null;
 
         const editorData = {
-          serialNumber: serialNumber.serialNumber + 1,
+          serialNumber: serialNumber + 1,
           title,
           content,
           htmlContent,
