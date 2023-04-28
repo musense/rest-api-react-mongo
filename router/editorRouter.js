@@ -343,6 +343,7 @@ function uploadImage() {
     storage: storage,
     limits: {
       fileSize: 10000000, //maximim size 10MB
+      fieldSize: 2 * 1024 * 1024,
     },
   });
   return upload.fields([
