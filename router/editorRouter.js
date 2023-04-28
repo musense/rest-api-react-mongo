@@ -1241,7 +1241,7 @@ editorRouter.post(
             newEditorUrl = `${originalUrl}${newEditor._id}.html`;
           }
 
-          let newEditorSitemap = new Sitemap({
+          newEditorSitemap = new Sitemap({
             url: newEditorUrl,
             originalID: newEditor._id,
             type: "editor",
